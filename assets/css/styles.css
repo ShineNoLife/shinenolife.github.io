@@ -51,3 +51,23 @@ body {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #1a1a1a; }
 ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+
+
+.blog h1,
+.blog h2,
+.blog h3,
+.blog h4,
+.blog h5,
+.blog h6 {
+  color: #7c3aed; /* Use your accent color */
+}
+
+
+.blog a {
+  color: #3b82f6;         /* Tailwind blue-500 */
+  text-decoration: underline;
+}
+
+.blog a:hover {
+  color: #1d4ed8;         /* Tailwind blue-700 */
+}
