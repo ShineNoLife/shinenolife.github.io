@@ -11,12 +11,16 @@ function initIcons() {
   }
 }
 
+function afterRender() {
+  initIcons();
+}
+
 async function boot() {
   initAnalytics();
   initAmbientBackground();
   renderPageRegions(siteData);
-  initPageInteractions(siteData, initIcons);
-  initIcons();
+  initPageInteractions(siteData, afterRender);
+  afterRender();
 
   await loadIncludes();
   initSharedInteractions();

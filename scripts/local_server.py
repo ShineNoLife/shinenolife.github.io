@@ -37,6 +37,8 @@ ASSETS = (
     "/assets/scripts/site/analytics.js",
     "/assets/scripts/site/app.js",
     "/assets/scripts/site/background.js",
+    "/assets/scripts/site/renderers.js",
+    "/assets/scripts/site/utils.js",
     "/analytics/config.js",
     "/blogs/content.js",
     "/gallery/content.js",
@@ -77,6 +79,8 @@ LEGACY_PATHS = (
     "data/research.js",
     "data/posts.js",
     "data/gallery.js",
+    "assets/scripts/site/image-config.js",
+    "assets/scripts/site/image-loader.js",
 )
 
 
@@ -148,6 +152,8 @@ def assert_current_assets(base_url: str) -> None:
     app_text = app.decode("utf-8", errors="replace")
     if "initCursor" in app_text or "cursor.js" in app_text:
         raise AssertionError("App module still imports cursor effects.")
+    if "image-loader" in app_text or "initDynamicImages" in app_text:
+        raise AssertionError("App module still imports the dynamic image loader.")
     if "initAnalytics" not in app_text:
         raise AssertionError("App module does not initialize analytics.")
 
@@ -160,7 +166,42 @@ def assert_current_assets(base_url: str) -> None:
     analytics_config_text = analytics_config.decode("utf-8", errors="replace")
     if "googleAnalytics" not in analytics_config_text or "shinenolife.github.io" not in analytics_config_text:
         raise AssertionError("Analytics config does not include the GA4 settings.")
+
+    _, utils = fetch(f"{base_url}/assets/scripts/site/utils.js")
+    utils_text = utils.decode("utf-8", errors="replace")
+    if "renderNativeImage" not in utils_text or "data-dynamic-image" in utils_text:
+        raise AssertionError("Native image helper is missing or dynamic image code remains.")
     print("OK current CSS/JS assets")
+
+
+def assert_native_images(base_url: str) -> None:
+    _, article = fetch(f"{base_url}/blogs/competitive-programming-journey/")
+    article_text = article.decode("utf-8", errors="replace")
+    if "data-dynamic-image" in article_text or "data-image-src" in article_text:
+        raise AssertionError("Blog article still uses dynamic image placeholders.")
+    if "optimized/" in article_text or "srcset=" in article_text:
+        raise AssertionError("Blog article still references generated image variants.")
+    if 'src="/blogs/competitive-programming-journey/images/ICPC_APAC_2025_NUS.jpg"' not in article_text:
+        raise AssertionError("Blog article cover does not load the original image directly.")
+    if 'loading="lazy"' not in article_text or 'decoding="async"' not in article_text:
+        raise AssertionError("Blog article images are missing lazy/async loading attributes.")
+    if 'fetchpriority="high"' not in article_text:
+        raise AssertionError("Above-the-fold article image is missing high fetch priority.")
+
+    _, posts = fetch(f"{base_url}/blogs/content.js")
+    posts_text = posts.decode("utf-8", errors="replace")
+    if "widths:" in posts_text:
+        raise AssertionError("Blog post image metadata still contains generated variant widths.")
+
+    generated_variants = [
+        path for root in ("home", "blogs", "gallery")
+        for path in (ROOT / root).glob("**/optimized/*")
+        if path.is_file()
+    ]
+    if generated_variants:
+        raise AssertionError(f"Generated optimized image files should not be committed: {generated_variants}")
+
+    print("OK native image loading")
 
 
 def assert_gallery_blog_separation() -> None:
@@ -202,6 +243,7 @@ def run_checks(base_url: str) -> None:
     for path in (*ROUTES, *ASSETS):
         assert_ok(base_url, path)
     assert_current_assets(base_url)
+    assert_native_images(base_url)
     assert_gallery_blog_separation()
     assert_clean_structure()
 

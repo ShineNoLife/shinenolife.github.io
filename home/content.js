@@ -10,7 +10,11 @@ export const profile = {
   // location: "Ho Chi Minh City, Vietnam",
   // email: "haxuanthien1@gmail.com",
   cv: "/home/files/CV.pdf",
-  image: "/home/images/profile.jpg",
+  image: {
+    src: "/home/images/profile.jpg",
+    width: 1160,
+    height: 1536
+  },
   socials: [
     { label: "GitHub", url: "https://github.com/ShineNoLife", icon: "github" },
     { label: "LinkedIn", url: "https://www.linkedin.com/in/shinenolife/", icon: "linkedin" },

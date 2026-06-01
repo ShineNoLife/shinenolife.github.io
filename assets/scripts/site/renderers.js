@@ -1,4 +1,4 @@
-import { escapeHtml, externalLinkAttrs, icon, shuffle } from "./utils.js";
+import { escapeHtml, externalLinkAttrs, icon, renderNativeImage, shuffle } from "./utils.js";
 
 export function renderPageRegions(siteData) {
   document.querySelectorAll("[data-render]").forEach((node) => {
@@ -14,7 +14,7 @@ export function renderGalleryGrid(items) {
         const tags = item.tags || [];
         return `
         <button class="gallery-item ${index % 7 === 0 ? "large" : ""} ${index % 5 === 0 ? "tall" : ""}" type="button" data-gallery-item data-gallery-card data-tags="${escapeHtml(tags.join("|"))}" data-src="${escapeHtml(item.src)}" data-title="${escapeHtml(item.title)}" data-caption="${escapeHtml(item.caption)}">
-          <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.title)}">
+          ${renderNativeImage(item, { alt: item.title })}
           <span class="gallery-caption">
             <strong>${escapeHtml(item.title)}</strong>
             <span class="gallery-caption-text">${escapeHtml(item.caption)}</span>
@@ -44,7 +44,11 @@ function renderHome(node, { profile }) {
     <div class="hero-grid">
       <aside class="profile-panel" aria-label="Profile image">
         <div class="portrait-frame">
-          <img src="${escapeHtml(profile.image)}" alt="${escapeHtml(profile.name)}">
+          ${renderNativeImage(profile.image, {
+            alt: profile.name,
+            loading: "eager",
+            fetchPriority: "high"
+          })}
         </div>
         ${renderProfileFacts(profile)}
       </aside>
@@ -125,7 +129,7 @@ function renderPostCard(post) {
   return `
     <a class="post-card" href="${escapeHtml(post.url)}" data-post-card data-title="${escapeHtml(post.title)}">
       <div class="post-card-image">
-        <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}">
+        ${renderNativeImage(post.image, { alt: post.title })}
       </div>
       <div class="post-card-body">
         <p class="post-meta">${escapeHtml(post.category)}</p>

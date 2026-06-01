@@ -46,7 +46,8 @@ and common rendering logic lives in `assets/scripts/site/`.
 │   ├── content.js            # Gallery-only images and tags
 │   └── images/
 │       └── mttn_2024.jpg
-├── scripts/local_server.py   # Local server and route checks
+├── scripts/
+│   └── local_server.py       # Local server and route checks
 ├── .gitignore
 └── index.html                # Required static-host entrypoint, redirects / to /home/
 ```
@@ -74,10 +75,36 @@ Example gallery item:
 {
   title: "MTTN 2024",
   src: "/gallery/images/mttn_2024.jpg",
+  width: 1620,
+  height: 1080,
   caption: "A gallery-only snapshot from MTTN 2024.",
   tags: ["events", "academic", "archive"]
 }
 ```
+
+## Image Delivery
+
+Keep one original image beside the content that uses it. The site relies on native browser image
+features instead of generated variants or an external image pipeline:
+
+```html
+<img
+  src="/path/to/photo.jpg"
+  alt="..."
+  width="1600"
+  height="1000"
+  loading="lazy"
+  decoding="async"
+>
+```
+
+For JavaScript-rendered images, add `src`, `width`, and `height` in the content file; the shared
+renderer adds `loading` and `decoding` automatically. Use `loading="eager"` and
+`fetchpriority="high"` only for above-the-fold images such as the profile portrait or article cover.
+
+Because GitHub Pages is static hosting, native browser loading does not shrink the original file.
+Before committing a very large photo, export a reasonably sized original, usually around 1600-2400px
+wide for web display.
 
 ## Analytics
 

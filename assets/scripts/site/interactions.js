@@ -166,8 +166,9 @@ function openImageModal(src, title, caption, afterRender) {
     document.body.appendChild(modal);
   }
 
-  modal.querySelector(".modal-image").src = src;
-  modal.querySelector(".modal-image").alt = title || "";
+  const modalImage = modal.querySelector(".modal-image");
+  modalImage.src = src;
+  modalImage.alt = title || "";
   modal.querySelector(".modal-copy h3").textContent = title || "";
   modal.querySelector(".modal-copy p").textContent = caption || "";
   modal.classList.add("is-open");
