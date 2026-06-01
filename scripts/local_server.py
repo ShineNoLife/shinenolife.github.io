@@ -136,8 +136,8 @@ def assert_ok(base_url: str, path: str) -> None:
 def assert_current_assets(base_url: str) -> None:
     _, css = fetch(f"{base_url}/assets/styles/main.css")
     css_text = css.decode("utf-8", errors="replace")
-    if "--bg: #00020a" not in css_text or "--accent: #6caeff" not in css_text:
-        raise AssertionError("CSS does not look like the current cosmic-blue stylesheet.")
+    if "--bg: #171b1d" not in css_text or "--text: #d3c6aa" not in css_text:
+        raise AssertionError("CSS does not look like the current Everforest-inspired stylesheet.")
     if "cursor-halo" in css_text:
         raise AssertionError("CSS still contains cursor-halo styles.")
 

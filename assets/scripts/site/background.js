@@ -71,7 +71,7 @@ function createStars(width, height) {
   return Array.from({ length: count }, (_, index) => ({
     x: Math.random() * width,
     y: Math.random() * height,
-    radius: 0.75 + Math.random() * 1.15,
+    radius: 1 + Math.random() * 1.35,
     driftX: -3.4 + Math.random() * 6.8,
     driftY: -2.2 + Math.random() * 4.4,
     wanderX: 10 + Math.random() * 28,
@@ -79,7 +79,7 @@ function createStars(width, height) {
     wanderSpeed: 0.1 + Math.random() * 0.22,
     phase: Math.random() * Math.PI * 2,
     opacity: 0.18 + Math.random() * 0.24,
-    tint: index % 3
+    tint: index % 4
   }));
 }
 
@@ -97,18 +97,18 @@ function draw(state, context, seconds) {
 
 function drawBase(context, width, height) {
   const base = context.createLinearGradient(0, 0, width, height);
-  base.addColorStop(0, "#000107");
-  base.addColorStop(0.5, "#00020a");
-  base.addColorStop(1, "#000004");
+  base.addColorStop(0, "#111516");
+  base.addColorStop(0.5, "#171b1d");
+  base.addColorStop(1, "#0f1213");
   context.fillStyle = base;
   context.fillRect(0, 0, width, height);
 }
 
 function drawLongRibbons(context, width, height, seconds) {
   const ribbons = [
-    { y: 0.24, color: "rgba(38, 88, 180, 0.018)", width: 190, speed: 0.16, phase: 0 },
-    { y: 0.58, color: "rgba(24, 62, 138, 0.022)", width: 230, speed: 0.12, phase: 1.6 },
-    { y: 0.84, color: "rgba(84, 123, 210, 0.014)", width: 160, speed: 0.1, phase: 3.1 }
+    { y: 0.24, color: "rgba(167, 192, 128, 0.014)", width: 180, speed: 0.16, phase: 0 },
+    { y: 0.58, color: "rgba(127, 187, 179, 0.016)", width: 220, speed: 0.12, phase: 1.6 },
+    { y: 0.84, color: "rgba(230, 152, 117, 0.01)", width: 150, speed: 0.1, phase: 3.1 }
   ];
 
   context.save();
@@ -144,19 +144,19 @@ function drawSoftFields(context, width, height, seconds) {
       x: 0.18 + Math.sin(seconds * 0.08) * 0.08,
       y: 0.24 + Math.cos(seconds * 0.07) * 0.05,
       radius: 0.52,
-      color: "rgba(46, 92, 190, 0.024)"
+      color: "rgba(167, 192, 128, 0.018)"
     },
     {
       x: 0.78 + Math.cos(seconds * 0.06) * 0.07,
       y: 0.38 + Math.sin(seconds * 0.075) * 0.06,
       radius: 0.58,
-      color: "rgba(27, 67, 155, 0.028)"
+      color: "rgba(127, 187, 179, 0.022)"
     },
     {
       x: 0.5 + Math.sin(seconds * 0.045) * 0.12,
       y: 0.88 + Math.cos(seconds * 0.05) * 0.04,
       radius: 0.64,
-      color: "rgba(76, 112, 196, 0.018)"
+      color: "rgba(211, 198, 170, 0.012)"
     }
   ];
 
@@ -186,9 +186,10 @@ function drawSoftFields(context, width, height, seconds) {
 
 function drawStars(context, stars, seconds, width, height) {
   const colors = [
-    "154, 211, 255",
-    "96, 158, 255",
-    "190, 218, 255"
+    "167, 192, 128",
+    "127, 187, 179",
+    "211, 198, 170",
+    "230, 152, 117"
   ];
 
   context.save();

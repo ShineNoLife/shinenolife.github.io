@@ -32,6 +32,7 @@ export function renderGalleryGrid(items) {
 }
 
 const renderers = {
+  "article-tags": renderArticleTags,
   home: renderHome,
   publications: renderPublications,
   "writing-list": renderWritingList,
@@ -52,7 +53,7 @@ function renderHome(node, { profile }) {
         <p class="hero-subtitle">${escapeHtml(profile.title)}</p>
         ${profile.intro.map((line) => `<p class="hero-intro">${escapeHtml(line)}</p>`).join("")}
         <div class="hero-actions">
-          <a class="button primary" href="${escapeHtml(profile.cv)}" download>${icon("download")} Download CV</a>
+          <a class="button primary" href="${escapeHtml(profile.cv)}" target="_blank" rel="noopener">${icon("download")} Download CV</a>
           <a class="button" href="#publications">${icon("book")} Publications</a>
         </div>
         <div class="social-row" aria-label="Social links">
@@ -138,6 +139,19 @@ function renderPostCard(post) {
   `;
 }
 
+function renderArticleTags(node, { posts }) {
+  const route = normalizeRoute(node.dataset.postUrl || window.location.pathname);
+  const post = (posts || []).find((item) => normalizeRoute(item.url) === route);
+  const tags = post?.tags || [];
+
+  if (!tags.length) {
+    node.hidden = true;
+    return;
+  }
+
+  node.textContent = tags.join(" / ");
+}
+
 function renderGalleryList(node, { galleryImages }) {
   const tags = [...new Set(galleryImages.flatMap((image) => image.tags || []))];
   const galleryMarkup = galleryImages.length
@@ -165,6 +179,13 @@ function renderGalleryList(node, { galleryImages }) {
   node.innerHTML = `
     ${galleryMarkup}
   `;
+}
+
+function normalizeRoute(path = "") {
+  const cleanPath = path.split("#")[0].split("?")[0];
+  if (!cleanPath) return "/";
+  if (cleanPath.endsWith("/index.html")) return cleanPath.slice(0, -"index.html".length);
+  return cleanPath.endsWith("/") ? cleanPath : `${cleanPath}/`;
 }
 
 function sectionHeading(kicker, title, body, action = "") {
