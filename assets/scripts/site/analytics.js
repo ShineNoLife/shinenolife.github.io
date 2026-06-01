@@ -1,14 +1,14 @@
 import { analyticsConfig } from "/analytics/config.js";
 
-const CLOUDFLARE_BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js";
+const GOOGLE_TAG_SRC = "https://www.googletagmanager.com/gtag/js";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
 
-function hasToken(token) {
-  return typeof token === "string" && token.trim().length > 0;
+function hasMeasurementId(measurementId) {
+  return typeof measurementId === "string" && /^G-[A-Z0-9]+$/i.test(measurementId.trim());
 }
 
 function shouldTrack(config, hostname) {
-  if (!config?.enabled || !hasToken(config.token)) {
+  if (!config?.enabled || !hasMeasurementId(config.measurementId)) {
     return false;
   }
 
@@ -23,22 +23,30 @@ function shouldTrack(config, hostname) {
   return config.productionHosts.includes(hostname);
 }
 
-function appendCloudflareBeacon(config) {
-  if (document.querySelector(`script[src="${CLOUDFLARE_BEACON_SRC}"]`)) {
-    return;
+function appendGoogleTag(config) {
+  const measurementId = config.measurementId.trim();
+  const scriptSrc = `${GOOGLE_TAG_SRC}?id=${encodeURIComponent(measurementId)}`;
+
+  if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = scriptSrc;
+    document.head.append(script);
   }
 
-  const script = document.createElement("script");
-  script.defer = true;
-  script.src = CLOUDFLARE_BEACON_SRC;
-  script.setAttribute("data-cf-beacon", JSON.stringify({ token: config.token.trim() }));
-  document.head.append(script);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function gtag() {
+    window.dataLayer.push(arguments);
+  };
+
+  window.gtag("js", new Date());
+  window.gtag("config", measurementId);
 }
 
 export function initAnalytics() {
-  const cloudflareConfig = analyticsConfig.cloudflareWebAnalytics;
+  const ga4Config = analyticsConfig.googleAnalytics;
 
-  if (shouldTrack(cloudflareConfig, window.location.hostname)) {
-    appendCloudflareBeacon(cloudflareConfig);
+  if (shouldTrack(ga4Config, window.location.hostname)) {
+    appendGoogleTag(ga4Config);
   }
 }

@@ -153,13 +153,13 @@ def assert_current_assets(base_url: str) -> None:
 
     _, analytics = fetch(f"{base_url}/assets/scripts/site/analytics.js")
     analytics_text = analytics.decode("utf-8", errors="replace")
-    if "static.cloudflareinsights.com/beacon.min.js" not in analytics_text:
-        raise AssertionError("Analytics module does not load the Cloudflare beacon.")
+    if "www.googletagmanager.com/gtag/js" not in analytics_text:
+        raise AssertionError("Analytics module does not load the GA4 Google tag.")
 
     _, analytics_config = fetch(f"{base_url}/analytics/config.js")
     analytics_config_text = analytics_config.decode("utf-8", errors="replace")
-    if "shinenolife.github.io" not in analytics_config_text:
-        raise AssertionError("Analytics config does not include the GitHub Pages hostname.")
+    if "googleAnalytics" not in analytics_config_text or "shinenolife.github.io" not in analytics_config_text:
+        raise AssertionError("Analytics config does not include the GA4 settings.")
     print("OK current CSS/JS assets")
 
 

@@ -39,12 +39,12 @@ jobs:
             -cf - . | tar -xf - -C _site
           touch _site/.nojekyll
 
-      - name: Add Cloudflare analytics config
+      - name: Add GA4 analytics config
         env:
-          CF_WEB_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+          GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
         run: |
-          if [ -z "$CF_WEB_ANALYTICS_TOKEN" ]; then
-            echo "Missing CLOUDFLARE_WEB_ANALYTICS_TOKEN repository secret."
+          if [ -z "$GA4_MEASUREMENT_ID" ]; then
+            echo "Missing GA4_MEASUREMENT_ID repository secret."
             exit 1
           fi
 
@@ -52,11 +52,16 @@ jobs:
 
           node <<'NODE'
           const fs = require("fs");
+          const measurementId = process.env.GA4_MEASUREMENT_ID.trim();
+
+          if (!/^G-[A-Z0-9]+$/i.test(measurementId)) {
+            throw new Error("GA4_MEASUREMENT_ID must look like G-XXXXXXXXXX.");
+          }
 
           const config = {
-            cloudflareWebAnalytics: {
+            googleAnalytics: {
               enabled: true,
-              token: process.env.CF_WEB_ANALYTICS_TOKEN,
+              measurementId,
               productionHosts: ["shinenolife.github.io"],
               trackLocalhost: false
             }

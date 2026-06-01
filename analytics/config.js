@@ -1,7 +1,7 @@
 export const analyticsConfig = {
-  cloudflareWebAnalytics: {
+  googleAnalytics: {
     enabled: false,
-    token: "",
+    measurementId: "",
     productionHosts: ["shinenolife.github.io"],
     trackLocalhost: false
   }

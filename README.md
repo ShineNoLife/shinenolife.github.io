@@ -27,7 +27,7 @@ and common rendering logic lives in `assets/scripts/site/`.
 │       ├── renderers.js
 │       └── utils.js
 ├── analytics/
-│   └── config.js             # Optional Cloudflare Web Analytics settings
+│   └── config.js             # Optional Google Analytics 4 settings
 ├── home/
 │   ├── index.html            # Research profile tab, served at /home/
 │   ├── content.js            # Profile, research cards, publications
@@ -81,25 +81,30 @@ Example gallery item:
 
 ## Analytics
 
-The site can report visitor statistics to Cloudflare Web Analytics while still being hosted on
-GitHub Pages. The shared `assets/scripts/site/app.js` module loads `analytics.js` on every page,
-and `analytics.js` injects Cloudflare's beacon only when analytics is enabled. The committed
+The site can report visitor statistics to Google Analytics 4 while still being hosted on GitHub
+Pages. The shared `assets/scripts/site/app.js` module loads `analytics.js` on every page, and
+`analytics.js` injects Google's `gtag.js` script only when analytics is enabled. The committed
 `analytics/config.js` file stays disabled by default; the deployment workflow writes the live
 analytics config into the GitHub Pages artifact.
 
 To enable it:
 
-1. In Cloudflare, open Web Analytics and add the current GitHub Pages hostname:
+1. In Google Analytics, create a GA4 property and add a Web data stream for:
 
 ```text
-shinenolife.github.io
+https://shinenolife.github.io
 ```
 
-2. Copy only the token value from Cloudflare's JavaScript snippet.
+2. Copy the Measurement ID from that web stream. It should look like:
+
+```text
+G-XXXXXXXXXX
+```
+
 3. Add it as a GitHub repository secret:
 
 ```text
-CLOUDFLARE_WEB_ANALYTICS_TOKEN
+GA4_MEASUREMENT_ID
 ```
 
 4. In GitHub, set Pages to deploy from GitHub Actions:
@@ -109,11 +114,11 @@ Settings -> Pages -> Build and deployment -> Source -> GitHub Actions
 ```
 
 The workflow in `.github/workflows/pages.yml` copies the static site into `_site`, injects the
-Cloudflare token from the repository secret, and deploys the artifact to GitHub Pages.
+GA4 Measurement ID from the repository secret, and deploys the artifact to GitHub Pages.
 
-When you move to a custom domain later, add it to `productionHosts` and create or update the
-matching site in Cloudflare Web Analytics. Keep `trackLocalhost` as `false` unless you intentionally
-want local preview visits in the dashboard.
+When you move to a custom domain later, add the domain to `productionHosts` and create or update
+the matching GA4 web stream. Keep `trackLocalhost` as `false` unless you intentionally want local
+preview visits in the dashboard.
 
 ## Local Preview
 
