@@ -10,12 +10,15 @@ and common rendering logic lives in `assets/scripts/site/`.
 
 ```text
 .
+├── .github/workflows/
+│   └── pages.yml             # GitHub Pages deployment with analytics injection
 ├── includes/layout/          # Shared HTML fragments
 │   ├── footer.html
 │   └── nav.html
 ├── assets/
 │   ├── styles/main.css
 │   └── scripts/site/         # Browser-native modules
+│       ├── analytics.js
 │       ├── app.js
 │       ├── background.js
 │       ├── content.js
@@ -23,6 +26,8 @@ and common rendering logic lives in `assets/scripts/site/`.
 │       ├── interactions.js
 │       ├── renderers.js
 │       └── utils.js
+├── analytics/
+│   └── config.js             # Optional Cloudflare Web Analytics settings
 ├── home/
 │   ├── index.html            # Research profile tab, served at /home/
 │   ├── content.js            # Profile, research cards, publications
@@ -73,6 +78,42 @@ Example gallery item:
   tags: ["events", "academic", "archive"]
 }
 ```
+
+## Analytics
+
+The site can report visitor statistics to Cloudflare Web Analytics while still being hosted on
+GitHub Pages. The shared `assets/scripts/site/app.js` module loads `analytics.js` on every page,
+and `analytics.js` injects Cloudflare's beacon only when analytics is enabled. The committed
+`analytics/config.js` file stays disabled by default; the deployment workflow writes the live
+analytics config into the GitHub Pages artifact.
+
+To enable it:
+
+1. In Cloudflare, open Web Analytics and add the current GitHub Pages hostname:
+
+```text
+shinenolife.github.io
+```
+
+2. Copy only the token value from Cloudflare's JavaScript snippet.
+3. Add it as a GitHub repository secret:
+
+```text
+CLOUDFLARE_WEB_ANALYTICS_TOKEN
+```
+
+4. In GitHub, set Pages to deploy from GitHub Actions:
+
+```text
+Settings -> Pages -> Build and deployment -> Source -> GitHub Actions
+```
+
+The workflow in `.github/workflows/pages.yml` copies the static site into `_site`, injects the
+Cloudflare token from the repository secret, and deploys the artifact to GitHub Pages.
+
+When you move to a custom domain later, add it to `productionHosts` and create or update the
+matching site in Cloudflare Web Analytics. Keep `trackLocalhost` as `false` unless you intentionally
+want local preview visits in the dashboard.
 
 ## Local Preview
 

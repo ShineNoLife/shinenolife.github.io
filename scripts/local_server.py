@@ -34,8 +34,10 @@ ROUTES = (
 
 ASSETS = (
     "/assets/styles/main.css",
+    "/assets/scripts/site/analytics.js",
     "/assets/scripts/site/app.js",
     "/assets/scripts/site/background.js",
+    "/analytics/config.js",
     "/blogs/content.js",
     "/gallery/content.js",
     "/home/content.js",
@@ -49,6 +51,7 @@ ASSETS = (
 
 EXPECTED_PAGE_FILES = (
     "index.html",
+    "analytics/config.js",
     "home/index.html",
     "home/content.js",
     "home/images/profile.jpg",
@@ -145,6 +148,18 @@ def assert_current_assets(base_url: str) -> None:
     app_text = app.decode("utf-8", errors="replace")
     if "initCursor" in app_text or "cursor.js" in app_text:
         raise AssertionError("App module still imports cursor effects.")
+    if "initAnalytics" not in app_text:
+        raise AssertionError("App module does not initialize analytics.")
+
+    _, analytics = fetch(f"{base_url}/assets/scripts/site/analytics.js")
+    analytics_text = analytics.decode("utf-8", errors="replace")
+    if "static.cloudflareinsights.com/beacon.min.js" not in analytics_text:
+        raise AssertionError("Analytics module does not load the Cloudflare beacon.")
+
+    _, analytics_config = fetch(f"{base_url}/analytics/config.js")
+    analytics_config_text = analytics_config.decode("utf-8", errors="replace")
+    if "shinenolife.github.io" not in analytics_config_text:
+        raise AssertionError("Analytics config does not include the GitHub Pages hostname.")
     print("OK current CSS/JS assets")
 
 

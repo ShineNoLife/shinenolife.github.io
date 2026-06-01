@@ -1,0 +1,81 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Prepare static site
+        run: |
+          mkdir -p _site
+          tar \
+            --exclude='./.git' \
+            --exclude='./.github' \
+            --exclude='./_site' \
+            --exclude='./scripts' \
+            --exclude='./README.md' \
+            --exclude='./.gitignore' \
+            -cf - . | tar -xf - -C _site
+          touch _site/.nojekyll
+
+      - name: Add Cloudflare analytics config
+        env:
+          CF_WEB_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+        run: |
+          if [ -z "$CF_WEB_ANALYTICS_TOKEN" ]; then
+            echo "Missing CLOUDFLARE_WEB_ANALYTICS_TOKEN repository secret."
+            exit 1
+          fi
+
+          mkdir -p _site/analytics
+
+          node <<'NODE'
+          const fs = require("fs");
+
+          const config = {
+            cloudflareWebAnalytics: {
+              enabled: true,
+              token: process.env.CF_WEB_ANALYTICS_TOKEN,
+              productionHosts: ["shinenolife.github.io"],
+              trackLocalhost: false
+            }
+          };
+
+          fs.writeFileSync(
+            "_site/analytics/config.js",
+            `export const analyticsConfig = ${JSON.stringify(config, null, 2)};\n`
+          );
+          NODE
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

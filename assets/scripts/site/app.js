@@ -1,4 +1,5 @@
 import { siteData } from "./content.js";
+import { initAnalytics } from "./analytics.js";
 import { initAmbientBackground } from "./background.js";
 import { loadIncludes } from "./includes.js";
 import { initPageInteractions, initSharedInteractions } from "./interactions.js";
@@ -11,6 +12,7 @@ function initIcons() {
 }
 
 async function boot() {
+  initAnalytics();
   initAmbientBackground();
   renderPageRegions(siteData);
   initPageInteractions(siteData, initIcons);
